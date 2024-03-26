@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <?php
+  session_start();
+  
+  // Validate the form submission
+  if ($_SERVER["REQUEST_METHOD"] == "POST") {
+      // Retrieve user input (sanitize input if needed)
+      $username = $_POST["username"];
+      $password = $_POST["password"];
+       
+      // Add your database connection code here
+      $servername = "localhost";
+      $db_username = "root";
+      $db_password = "";
+      $dbname = "Expense";
+  
+      $conn = new mysqli($servername, $db_username, $db_password, $dbname);
+  
+      if ($conn->connect_error) {
+          die("Connection failed: " . $conn->connect_error);
+      }
+  
+      // Prepare and execute a SELECT query to get user information
+      $stmt = $conn->prepare("SELECT username, password FROM user WHERE username = ?");
+      $stmt->bind_param("s", $username);
+      $stmt->execute();
+      $stmt->bind_result($dbUsername, $dbPassword);
+      $stmt->fetch();
+      $stmt->close();
+  
+      // Verify the entered password with the stored hashed password
+      if ($dbUsername && password_verify($password, $dbPassword)) {
+          // Set session variable upon successful login
+         $_SESSION["username"] = $username;
+        // $_SESSION["email"] = $email;
+  
+          // Redirect to the dashboard or another page
+          header("Location: sidebar.php");
+          exit();
+      } else {
+          $error_message = "Invalid username or password";
+      }
+  
+  }
+  ?>
+  
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+  <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Login Page</title>
+  <style>
+          body {
+              font-family: Arial, sans-serif;
+              margin: 0;
+              padding: 0;
+              height: 100vh;
+              background: url('assets/images/10061977.jpg') center/cover no-repeat fixed;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+          }
+  
+          .overlay {
+              background: rgba(255, 255, 255, 0.8);
+              padding: 20px;
+              border-radius: 5px;
+              box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+              width: 300px;
+          }
+  
+          h2 {
+              text-align: center;
+              color: #333;
+          }
+  
+          form {
+              display: flex;
+              flex-direction: column;
+          }
+  
+          label {
+              margin-bottom: 5px;
+              color: #555;
+          }
+  
+          input {
+              padding: 8px;
+              margin-bottom: 10px;
+              border: 1px solid #ccc;
+              border-radius: 3px;
+          }
+  
+          button {
+              padding: 10px;
+              background-color: #4caf50;
+              color: #fff;
+              border: none;
+              border-radius: 3px;
+              cursor: pointer;
+          }
+  
+          button:hover {
+              background-color: #45a049;
+          }
+  
+          .error-message {
+              color: red;
+              text-align: center;
+              margin-top: 10px;
+          }
+  
+          .links {
+              text-align: center;
+              margin-top: 10px;
+          }
+  
+          .links a {
+              color: #333;
+              text-decoration: underline;
+              margin: 0 10px;
+              cursor: pointer;
+          }
+  
+          .links a:hover {
+              color: #555;
+          }
+      </style>
+  </head>
+  <body>
+  
+      <div class="overlay">
+          <h2>Login</h2>
+          <form action="" method="post">
+              <label for="username">Username:</label>
+              <input type="text" id="username" name="username" required>
+              
+              <label for="password">Password:</label>
+              <input type="password" id="password" name="password" required>
+              
+              <button type="submit">Login</button>
+          </form>
+  
+          <?php
+          // Display error messages if any
+          if (isset($error_message)) {
+              echo "<p class='error-message'>$error_message</p>";
+          }
+          ?>
+  
+          <div class="links">
+              <a href="ForgetPassword.php">Forgot Password?</a>
+              <span>|</span>
+              <a href="SingUp.php">Create Account</a>
+          </div>
+      </div>
+  
+  </body>
+  </html>
+</head>
+
+<body>
+    <div class="sidebar">
+        <?php include 'sidebar.php'; ?>
+    </div>
+    <div class="container">
+        <h2>Update Your Profile</h2>
+        <form method="post" action="<?php echo $_SERVER['PHP_SELF']; ?>" enctype="multipart/form-data" onsubmit="return validateForm()">
+            <!-- Add your user data fields here -->
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" class="form-control" name="username" id="username" placeholder="Enter username" required>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" class="form-control" name="email" id="email" placeholder="Enter email" required>
+            </div>
+
+            <div class="form-group"><label for="gender">Gender</label>
+                <div class="gender-radio">
+                    <label><input type="radio" name="gender" value="male" required> Male</label>
+                    <label><input type="radio" name="gender" value="female" required> Female</label>
+                    <label><input type="radio" name="gender" value="other" required> Other</label>
+                </div>
+
+                
+            <div class="form-group">
+                <label for="mobile">Mobile Number</label>
+                <input type="text" class="form-control" name="mobile" id="mobile" placeholder="Enter mobile number" required>
+            </div>
+
+            <div class="form-group">
+                <label for="profileImage">Profile Image</label>
+                <input type="file" class="form-control" name="profileImage" id="profileImage" accept="image/*">
+            </div>
+
+            <button type="submit" class="btn btn-primary">Update</button>
+        </form>
+
+        <?php
+        
+        session_start(); 
+
+        // PHP code for handling form submission and database insertion
+        if ($_SERVER["REQUEST_METHOD"] == "POST") {
+            $servername = "localhost";
+            $username = "root";
+            $password = "";
+            $dbname = "Expense";
+
+            $conn = new mysqli($servername, $username, $password, $dbname);
+
+            if ($conn->connect_error) {
+                die("Connection failed: " . $conn->connect_error);
+            }
+
+            // Get username from session
+            $username = $_SESSION["username"]; // Replace 'your_username_key' with the actual key
+
+            $email = $_POST["email"];
+            $gender = $_POST["gender"];
+            $mobile = $_POST["mobile"];
+
+            // Handle profile image upload
+            $targetDir = "profile_images/";
+            $targetFile = $targetDir . basename($_FILES["profileImage"]["name"]);
+
+            move_uploaded_file($_FILES["profileImage"]["tmp_name"], $targetFile);
+
+            $sql = "UPDATE user SET username='$username', email='$email', gender='$gender', mobile_number='$mobile', profile_Image='$targetFile' WHERE username='$username'";
+
+            if ($conn->query($sql) == TRUE) {
+                echo "User data updated successfully.";
+            } else {
+                echo "Error: " . $sql . "<br>" . $conn->error;
+            }
+        }
+        ?>
+    </div>
+    <!-- Bootstrap JS and Popper.js -->
+    <!--<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function validateForm() {
+            // Add validation logic if needed
+            return true;
+        }
+    </script>-->
+</body>
+
+</html>
