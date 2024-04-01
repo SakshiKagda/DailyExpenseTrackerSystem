@@ -81,7 +81,7 @@ session_start();
                     <div class="col-lg-12">
                         <nav class="navbar navbar-expand-lg">
                             <a class="navbar-brand" href="demo.php">
-                                <img id="logo" src="assets/images/image_2024_03_20T05_11_02_796Z__1_-removebg-preview.png" alt="Logo">
+                                <img id="logo" src="assets/images/image_2024_03_20T05_11_02_796Z_1-removebg-preview.png" alt="Logo">
                             </a>
                             <button class="navbar-toggler collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                                 <span class="toggler-icon"></span>
